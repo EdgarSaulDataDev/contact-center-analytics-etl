@@ -14,18 +14,19 @@ DB_PATH = BASE_DIR / "data" / "contact_center.db"
 SCHEMA_PATH = BASE_DIR / "sql" / "schema.sql"
 
 
-def load_json(filename):
-    with (DATA_DIR / filename).open(encoding="utf-8") as file:
+def load_json(filename, data_dir=DATA_DIR):
+    with (Path(data_dir) / filename).open(encoding="utf-8") as file:
         return json.load(file)
 
 
-def main():
-    agents = load_json("agents.json")
-    interactions = load_json("interactions.json")
+def load_database(db_path=DB_PATH, data_dir=DATA_DIR):
+    db_path = Path(db_path)
+    agents = load_json("agents.json", data_dir)
+    interactions = load_json("interactions.json", data_dir)
 
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with sqlite3.connect(DB_PATH) as connection:
+    with sqlite3.connect(db_path) as connection:
         connection.execute("PRAGMA foreign_keys = ON")
 
         schema = SCHEMA_PATH.read_text(encoding="utf-8")
@@ -82,7 +83,11 @@ def main():
 
             print(f"{table}: {count} records")
 
-    print(f"Database created: {DB_PATH}")
+    print(f"Database created: {db_path}")
+
+
+def main():
+    load_database()
 
 
 if __name__ == "__main__":

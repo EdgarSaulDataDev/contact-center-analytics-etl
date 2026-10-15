@@ -10,20 +10,28 @@ from pathlib import Path
 import pytest
 
 
+
 BASE_DIR = Path(__file__).resolve().parents[1]
-DB_PATH = BASE_DIR / "data" / "contact_center.db"
 
 
 @pytest.fixture
-def connection():
-    assert DB_PATH.exists(), (
-        "Database not found. Run: python src/pipeline.py"
-    )
+def connection(tmp_path):
+    import sys
 
-    conn = sqlite3.connect(DB_PATH)
+    sys.path.insert(0, str(BASE_DIR))
+
+    from src.loading.sqlite_loader import load_database
+
+    temporary_db = tmp_path / "test_contact_center.db"
+
+    load_database(db_path=temporary_db)
+
+    conn = sqlite3.connect(temporary_db)
+    conn.execute("PRAGMA foreign_keys = ON")
+
     yield conn
-    conn.close()
 
+    conn.close()
 
 def test_agents_count(connection):
     result = connection.execute(
