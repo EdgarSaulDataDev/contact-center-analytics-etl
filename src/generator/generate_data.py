@@ -11,7 +11,6 @@ import json
 import random
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from uuid import uuid4
 
 SEED = 42
 TOTAL_INTERACTIONS = 100
@@ -57,7 +56,7 @@ def generate_interactions(count=TOTAL_INTERACTIONS):
         wrap_seconds = random.randint(10, 90) if handled else 0
 
         interaction = {
-            "interaction_id": str(uuid4()),
+            "interaction_id": f"INT-{index + 1:06d}",
             "agent_id": agent["agent_id"] if agent else None,
             "start_time": start_time.isoformat(),
             "end_time": (
